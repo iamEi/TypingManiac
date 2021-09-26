@@ -1,0 +1,2 @@
+# TypingManiac 
+Testing some pygame
