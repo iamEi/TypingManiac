@@ -12,15 +12,19 @@ user_input = ''
 word = pygame.sprite.Group()
 score = 0
 words = []
-life = 5
+life = 10
 powerup = 0
 running = True
+speed = 1
 
 spawn_word = pygame.USEREVENT + 1
 pygame.time.set_timer(spawn_word,1000)
 
 power = pygame.USEREVENT + 2
 pygame.time.set_timer(power,2000)
+
+speedup_timer = pygame.USEREVENT + 2
+pygame.time.set_timer(speedup_timer,2000)
 
 def submit(input):
 	global score
@@ -30,13 +34,19 @@ def submit(input):
 			words.remove(i.word)
 			i.kill()
 
+def speedup():
+	global speed
+	speed += 0.1
+	for i in word.sprites():
+		i.speed = speed
+
+
 def activate_power():
 	global score
 	count = 0
 	for i in word.sprites():
 		if i.rect.y < 600:
 			count += 1
-			i.kill()
 	score += count
 
 def gameover():
@@ -52,18 +62,23 @@ while True:
 			exit()
 
 		if event.type == spawn_word:
-			Word = Words(screen)
+			Word = Words(screen,speed)
 			word.add(Word)
 			words.append(Word.word)
 
 		if event.type == power:
 			powerup += 1
 
-		if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+		if event.type == speedup_timer:
+			if speed < 4:
+				speedup()
+
+		if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
 			if powerup != 5:
 				user_input = ''
 				score = 0
 				life = 10
+				speed = 1
 				running = True
 
 		if event.type == pygame.KEYDOWN:
@@ -96,8 +111,8 @@ while True:
 		tool.display_life(life)
 		for i in word.sprites():
 			if i.rect.y < 0:
-				words.remove(i.word)
 				life -= 1
+				i.kill()
 
 		if life == 0:
 			running = False
